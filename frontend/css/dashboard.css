@@ -217,6 +217,11 @@ body {
     border-color: var(--accent);
 }
 
+.form-group select option {
+    background-color: #1e293b; /* Dark solid background */
+    color: #f8fafc; /* White text */
+}
+
 .clickable-link {
     color: var(--accent);
     cursor: pointer;
