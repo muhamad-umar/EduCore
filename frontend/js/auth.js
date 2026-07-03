@@ -10,17 +10,17 @@ window.showToast = (message, type = 'info') => {
         container.className = 'toast-container';
         document.body.appendChild(container);
     }
-    
+
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     let icon = 'fa-circle-info';
-    if(type === 'error') icon = 'fa-circle-xmark';
-    if(type === 'success') icon = 'fa-circle-check';
-    
+    if (type === 'error') icon = 'fa-circle-xmark';
+    if (type === 'success') icon = 'fa-circle-check';
+
     toast.innerHTML = `<i class="fa-solid ${icon}" style="font-size:1.25rem;"></i> <span>${message}</span>`;
     container.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'fadeOut 0.15s ease forwards';
         setTimeout(() => toast.remove(), 150);
@@ -61,7 +61,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Login successful!", "success");
                 setTimeout(() => { window.location.href = "dashboard.html"; }, 300); // Redirect after toast
             } catch (error) {
-                showToast("Error logging in: " + error.message, "error");
+                // Clear any existing banners
+                const existingBanner = document.getElementById('verification-banner');
+                if (existingBanner) existingBanner.remove();
+
+                if (error.message.includes('Email not confirmed')) {
+                    const banner = document.createElement('div');
+                    banner.id = 'verification-banner';
+                    banner.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                    banner.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                    banner.style.color = 'var(--text-main)';
+                    banner.style.padding = '1rem 1.5rem';
+                    banner.style.borderRadius = '0.5rem';
+                    banner.style.marginBottom = '1.5rem';
+                    banner.style.display = 'flex';
+                    banner.style.alignItems = 'center';
+                    banner.style.gap = '1rem';
+                    banner.style.fontSize = '0.9rem';
+                    banner.style.textAlign = 'left';
+                    banner.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 1.25rem;"></i> <div><strong>Action Required:</strong> Your email address has not been verified. Please check your inbox.</div>`;
+
+                    loginForm.insertBefore(banner, loginForm.firstChild);
+                } else {
+                    showToast("Error logging in: " + error.message, "error");
+                }
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
