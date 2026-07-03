@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!isAdmin) {
         if(document.getElementById('userName')) document.getElementById('userName').innerText += " (Read-Only)";
+        if(document.getElementById('quickRegistrationCard')) document.getElementById('quickRegistrationCard').style.display = 'none';
         document.querySelectorAll('.btn-primary').forEach(btn => {
             if(btn.innerText.includes('Add') || btn.innerText.includes('Register')) btn.style.display = 'none';
         });
@@ -202,38 +203,56 @@ document.addEventListener("DOMContentLoaded", async () => {
                 courses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
             courseSelect.disabled = false;
         }
+
+        const qStudentSelect = document.getElementById('quickRegStudentId');
+        const qCourseSelect = document.getElementById('quickRegCourseId');
+        
+        if(qStudentSelect) {
+            qStudentSelect.innerHTML = '<option value="">Select a student...</option>' + 
+                students.map(s => `<option value="${s.student_id}">${s.name}</option>`).join('');
+        }
+        if(qCourseSelect) {
+            qCourseSelect.innerHTML = '<option value="">Select a course...</option>' + 
+                courses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
+            qCourseSelect.disabled = false;
+        }
     }
 
     // Dynamic Registration Dropdown Logic
-    const regStudentSelect = document.getElementById('regStudentId');
-    if (regStudentSelect) {
-        regStudentSelect.addEventListener('change', (e) => {
-            const studentId = parseInt(e.target.value);
-            const courseSelect = document.getElementById('regCourseId');
-            
-            if (!studentId) {
-                populateDropdowns(); // Reset if no student
-                return;
-            }
+    const setupDynamicCourseSelect = (studentSelectId, courseSelectId) => {
+        const regStudentSelect = document.getElementById(studentSelectId);
+        if (regStudentSelect) {
+            regStudentSelect.addEventListener('change', (e) => {
+                const studentId = parseInt(e.target.value);
+                const courseSelect = document.getElementById(courseSelectId);
+                
+                if (!studentId) {
+                    populateDropdowns(); // Reset if no student
+                    return;
+                }
 
-            // Find courses student is ALREADY registered in
-            const enrolledCourseIds = registrations
-                .filter(r => r.student_id === studentId)
-                .map(r => r.course_id);
+                // Find courses student is ALREADY registered in
+                const enrolledCourseIds = registrations
+                    .filter(r => r.student_id === studentId)
+                    .map(r => r.course_id);
 
-            // Filter out enrolled courses
-            const availableCourses = courses.filter(c => !enrolledCourseIds.includes(c.course_id));
+                // Filter out enrolled courses
+                const availableCourses = courses.filter(c => !enrolledCourseIds.includes(c.course_id));
 
-            if (availableCourses.length === 0) {
-                courseSelect.innerHTML = '<option value="">(All courses enrolled)</option>';
-                courseSelect.disabled = true;
-            } else {
-                courseSelect.disabled = false;
-                courseSelect.innerHTML = '<option value="">Select a course...</option>' + 
-                    availableCourses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
-            }
-        });
-    }
+                if (availableCourses.length === 0) {
+                    courseSelect.innerHTML = '<option value="">(All courses enrolled)</option>';
+                    courseSelect.disabled = true;
+                } else {
+                    courseSelect.disabled = false;
+                    courseSelect.innerHTML = '<option value="">Select a course...</option>' + 
+                        availableCourses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
+                }
+            });
+        }
+    };
+
+    setupDynamicCourseSelect('regStudentId', 'regCourseId');
+    setupDynamicCourseSelect('quickRegStudentId', 'quickRegCourseId');
 
     // Search Logic
     document.getElementById('searchStudent').addEventListener('input', (e) => {
@@ -439,35 +458,46 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!error) await loadRegistrations();
     };
 
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    const handleRegistrationSubmit = async (e, formId, studentIdElement, courseIdElement, btnElement) => {
         e.preventDefault();
         const payload = {
-            student_id: parseInt(document.getElementById('regStudentId').value),
-            course_id: parseInt(document.getElementById('regCourseId').value)
+            student_id: parseInt(document.getElementById(studentIdElement).value),
+            course_id: parseInt(document.getElementById(courseIdElement).value)
         };
-        const btn = document.getElementById('regSubmitBtn');
+        const btn = document.getElementById(btnElement);
         btn.disabled = true; btn.innerText = 'Registering...';
 
         // Strict frontend validation check
         const isAlreadyEnrolled = registrations.some(r => r.student_id === payload.student_id && r.course_id === payload.course_id);
         if (isAlreadyEnrolled) {
             showToast("Student is already enrolled in this course!", "error");
-            btn.disabled = false; btn.innerText = 'Register';
+            btn.disabled = false; btn.innerText = 'Register Student';
             return;
         }
         
         try {
             const { error } = await supabase.from('Registration').insert([payload]);
             if(error) throw error;
-            closeModal('registrationModal');
+            if(formId === 'registrationForm') closeModal('registrationModal');
+            document.getElementById(formId).reset();
+            populateDropdowns();
             showToast("Student registered successfully!", "success");
             await loadRegistrations();
         } catch(err) { 
-            // Handle any database-level UNIQUE constraint violations gracefully
             showToast(err.code === '23505' ? "Student is already registered for this course." : err.message, "error"); 
         }
-        btn.disabled = false; btn.innerText = 'Register';
-    });
+        btn.disabled = false; btn.innerText = 'Register Student';
+    };
+
+    const regForm = document.getElementById('registrationForm');
+    if (regForm) {
+        regForm.addEventListener('submit', (e) => handleRegistrationSubmit(e, 'registrationForm', 'regStudentId', 'regCourseId', 'regSubmitBtn'));
+    }
+
+    const quickRegForm = document.getElementById('quickRegistrationForm');
+    if (quickRegForm) {
+        quickRegForm.addEventListener('submit', (e) => handleRegistrationSubmit(e, 'quickRegistrationForm', 'quickRegStudentId', 'quickRegCourseId', 'quickRegSubmitBtn'));
+    }
 
     // -------------------------------------------------------------------------
     // Initial Load
