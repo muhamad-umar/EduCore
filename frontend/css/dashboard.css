@@ -271,3 +271,95 @@ body {
     padding: 0.5rem 0;
     color: var(--text-muted);
 }
+
+/* Chatbot UI */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 60vh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.message {
+    display: flex;
+    gap: 1rem;
+    max-width: 85%;
+}
+
+.message.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    background-color: var(--surface);
+    border: 1px solid var(--card-border);
+}
+
+.message.bot .avatar {
+    color: var(--accent);
+}
+
+.message.user .avatar {
+    color: #f8fafc;
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.message .bubble {
+    background-color: var(--surface);
+    border: 1px solid var(--card-border);
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    color: var(--text-main);
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.message.user .bubble {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    border-top-right-radius: 0;
+}
+
+.message.bot .bubble {
+    border-top-left-radius: 0;
+}
+
+.chat-input-area {
+    padding: 1rem 1.5rem;
+    background-color: var(--surface);
+    border-top: 1px solid var(--card-border);
+}
+
+.chat-input-area input {
+    flex: 1;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    outline: none;
+}
+
+.chat-input-area input:focus {
+    border-color: var(--accent);
+}

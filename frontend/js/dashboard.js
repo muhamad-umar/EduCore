@@ -500,6 +500,68 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // -------------------------------------------------------------------------
+    // Chatbot Logic
+    // -------------------------------------------------------------------------
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessages = document.getElementById('chatMessages');
+
+    const appendMessage = (text, sender = 'user') => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}`;
+        const icon = sender === 'user' ? 'fa-user' : 'fa-robot';
+        msgDiv.innerHTML = `
+            <div class="avatar"><i class="fa-solid ${icon}"></i></div>
+            <div class="bubble">${text}</div>
+        `;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+    };
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user');
+            chatInput.value = '';
+            
+            // Show typing indicator
+            const typingId = 'typing-' + Date.now();
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = typingId;
+            typingDiv.innerHTML = `
+                <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="bubble"><i class="fa-solid fa-ellipsis fa-fade"></i></div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
+                document.getElementById(typingId).remove();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessage(data.reply, 'bot');
+                } else {
+                    appendMessage("Sorry, I'm having trouble connecting to my brain right now.", 'bot');
+                }
+            } catch (err) {
+                document.getElementById(typingId).remove();
+                appendMessage("Network error. Please try again later.", 'bot');
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
     // Initial Load
     // -------------------------------------------------------------------------
     await Promise.all([loadStudents(), loadCourses(), loadRegistrations()]);

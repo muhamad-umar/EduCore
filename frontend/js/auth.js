@@ -131,4 +131,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Google Auth Logic
+    const googleBtn = document.getElementById('googleAuthBtn');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', async () => {
+            const originalText = googleBtn.innerHTML;
+            googleBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...`;
+            googleBtn.disabled = true;
+            
+            try {
+                const { data, error } = await Supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                if (error) throw error;
+            } catch (error) {
+                showToast("Error with Google sign in: " + error.message, "error");
+                googleBtn.innerHTML = originalText;
+                googleBtn.disabled = false;
+            }
+        });
+    }
+
 });

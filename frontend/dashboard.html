@@ -28,6 +28,9 @@
             <li class="nav-item" data-target="registrationsSection">
                 <i class="fa-solid fa-clipboard-list"></i> Registrations
             </li>
+            <li class="nav-item" data-target="chatbotSection">
+                <i class="fa-solid fa-robot"></i> AI Assistant
+            </li>
         </ul>
         <div class="sidebar-footer">
             <button id="logoutBtn" class="btn btn-outline" style="width: 100%;">Log out</button>
@@ -153,6 +156,28 @@
                             </thead>
                             <tbody id="registrationsTableBody"></tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHATBOT SECTION -->
+            <section id="chatbotSection" class="dashboard-section animate-fade-in" style="display: none;">
+                <div class="dashboard-header">
+                    <h1>AI Assistant</h1>
+                    <p>Ask questions or manage the system via natural language.</p>
+                </div>
+                <div class="card chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                            <div class="bubble">Hello! I am your EduCore AI Assistant. How can I help you today?</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <form id="chatForm" style="display: flex; gap: 0.5rem; width: 100%;">
+                            <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off" required>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
                     </div>
                 </div>
             </section>
