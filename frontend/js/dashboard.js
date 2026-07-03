@@ -195,7 +195,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         if(courseSelect) {
             courseSelect.innerHTML = '<option value="">Select a course...</option>' + 
                 courses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
+            courseSelect.disabled = false;
         }
+    }
+
+    // Dynamic Registration Dropdown Logic
+    const regStudentSelect = document.getElementById('regStudentId');
+    if (regStudentSelect) {
+        regStudentSelect.addEventListener('change', (e) => {
+            const studentId = parseInt(e.target.value);
+            const courseSelect = document.getElementById('regCourseId');
+            
+            if (!studentId) {
+                populateDropdowns(); // Reset if no student
+                return;
+            }
+
+            // Find courses student is ALREADY registered in
+            const enrolledCourseIds = registrations
+                .filter(r => r.student_id === studentId)
+                .map(r => r.course_id);
+
+            // Filter out enrolled courses
+            const availableCourses = courses.filter(c => !enrolledCourseIds.includes(c.course_id));
+
+            if (availableCourses.length === 0) {
+                courseSelect.innerHTML = '<option value="">(All courses enrolled)</option>';
+                courseSelect.disabled = true;
+            } else {
+                courseSelect.disabled = false;
+                courseSelect.innerHTML = '<option value="">Select a course...</option>' + 
+                    availableCourses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
+            }
+        });
     }
 
     // Search Logic
@@ -280,6 +312,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.openRegistrationModal = () => {
         document.getElementById('registrationForm').reset();
+        populateDropdowns();
+        document.getElementById('regCourseId').disabled = false;
         document.getElementById('registrationModal').style.display = 'flex';
     }
 
@@ -386,6 +420,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         const btn = document.getElementById('regSubmitBtn');
         btn.disabled = true; btn.innerText = 'Registering...';
+
+        // Strict frontend validation check
+        const isAlreadyEnrolled = registrations.some(r => r.student_id === payload.student_id && r.course_id === payload.course_id);
+        if (isAlreadyEnrolled) {
+            showToast("Student is already enrolled in this course!", "error");
+            btn.disabled = false; btn.innerText = 'Register';
+            return;
+        }
         
         try {
             const { error } = await supabase.from('Registration').insert([payload]);
@@ -393,7 +435,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             closeModal('registrationModal');
             showToast("Student registered successfully!", "success");
             await loadRegistrations();
-        } catch(err) { showToast(err.message, "error"); }
+        } catch(err) { 
+            // Handle any database-level UNIQUE constraint violations gracefully
+            showToast(err.code === '23505' ? "Student is already registered for this course." : err.message, "error"); 
+        }
         btn.disabled = false; btn.innerText = 'Register';
     });
 
