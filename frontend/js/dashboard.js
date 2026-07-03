@@ -96,6 +96,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         tbody.innerHTML = dataToRender.map(s => `
             <tr>
                 <td>${s.student_id}</td>
+                <td>
+                    ${s.profile_picture 
+                        ? `<img src="${s.profile_picture}" class="student-avatar" alt="${s.name}'s Profile">` 
+                        : `<div class="student-avatar-placeholder"><i class="fa-solid fa-user"></i></div>`}
+                </td>
                 <td><span class="clickable-link" onclick="viewStudentCourses(${s.student_id}, '${s.name.replace(/'/g, "\\'")}')">${s.name}</span></td>
                 <td>${s.email}</td>
                 <td>${s.phone || ''}</td>
@@ -343,6 +348,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('studentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('studentId').value;
+        const pictureFile = document.getElementById('studentPicture').files[0];
+
         const payload = {
             name: document.getElementById('studentName').value,
             email: document.getElementById('studentEmail').value,
@@ -352,6 +359,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.disabled = true; btn.innerText = 'Saving...';
         
         try {
+            // Handle Profile Picture Upload
+            if (pictureFile) {
+                const fileExt = pictureFile.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+                
+                // Assumes your bucket name is 'Pictures'
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('Pictures')
+                    .upload(fileName, pictureFile);
+                
+                if (uploadError) throw uploadError;
+                
+                // Get the public URL for the uploaded image
+                const { data: { publicUrl } } = supabase.storage
+                    .from('Pictures')
+                    .getPublicUrl(fileName);
+                    
+                payload.profile_picture = publicUrl;
+            }
+
             if (id) await supabase.from('Student').update(payload).eq('student_id', id);
             else await supabase.from('Student').insert([payload]);
             closeModal('studentModal');

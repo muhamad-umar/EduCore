@@ -243,3 +243,31 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+}
+
+.student-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--accent);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    border: 1px dashed var(--accent);
+}
+
+.form-group input[type="file"] {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0;
+    color: var(--text-muted);
+}
