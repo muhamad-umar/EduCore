@@ -382,3 +382,135 @@ body {
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background-color: var(--accent);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        padding-bottom: 70px; /* Space for bottom nav */
+    }
+    
+    .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 70px;
+        flex-direction: row;
+        padding: 0;
+        border-right: none;
+        border-top: 1px solid var(--card-border);
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: space-around;
+    }
+    
+    .sidebar-brand {
+        display: none;
+    }
+    
+    .nav-menu {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0;
+    }
+    
+    .nav-item {
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0.25rem;
+        font-size: 0.65rem;
+        border-radius: 0;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .nav-item i {
+        font-size: 1.25rem;
+    }
+    
+    .sidebar-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #logoutBtn {
+        border: none !important;
+        background: transparent !important;
+        color: var(--text-muted) !important;
+        font-size: 0.65rem !important;
+        width: auto !important;
+        padding: 0.5rem !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    #logoutBtn::before {
+        content: '\f2f5';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.25rem;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1.5rem 1rem;
+        width: 100%;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 1rem;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .card-header .btn {
+        width: 100%;
+    }
+    
+    #quickRegistrationForm {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    
+    #quickRegistrationForm .form-group {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .chat-container {
+        height: 70vh;
+    }
+}

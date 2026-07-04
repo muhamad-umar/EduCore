@@ -331,6 +331,16 @@ a {
   .nav-links {
     display: none; /* In a real app, we'd add a hamburger menu */
   }
+  .features {
+    grid-template-columns: 1fr;
+    padding: 2rem 5%;
+  }
+  .auth-card {
+    padding: 2rem 1.5rem;
+  }
+  .auth-container {
+    padding: 1rem;
+  }
 }
 
 /* Toast Notifications */
